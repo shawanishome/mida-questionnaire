@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MIDA — Client Onboarding Questionnaire</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --navy:    #002060;
+  --navy2:   #0a2d6e;
+  --teal:    #66B3B2;
+  --teal2:   #4a9b9a;
+  --orange:  #FF7F00;
+  --pink:    #FF64B9;
+  --white:   #FFFFFF;
+  --off:     #F4F7FC;
+  --gray:    #64748b;
+  --lgray:   #e2e8f0;
+  --dark:    #1e293b;
+  --green:   #16a34a;
+  --chip-border: #c7d9f0;
+  --radius:  10px;
+  --shadow:  0 2px 16px rgba(0,32,96,.08);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--off);color:var(--dark);min-height:100vh;}
+
+/* ── TOP NAV ─────────────────────────────────────── */
+.topnav{
+  background:var(--navy);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 32px;height:56px;position:sticky;top:0;z-index:100;
+}
+.topnav-brand{display:flex;align-items:center;gap:10px;}
+.topnav-logo{
+  width:30px;height:30px;border-radius:6px;
+  background:var(--teal);display:flex;align-items:center;justify-content:center;
+  font-family:'DM Serif Display',serif;font-size:14px;color:#fff;font-weight:700;
+}
+.topnav-name{color:#fff;font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;}
+.topnav-sub{color:rgba(255,255,255,.45);font-size:11px;margin-left:8px;letter-spacing:.06em;text-transform:uppercase;}
+.topnav-actions{display:flex;align-items:center;gap:12px;}
+.saved{color:rgba(255,255,255,.45);font-size:12px;}
+.btn-export{
+  display:flex;align-items:center;gap:6px;
+  background:transparent;border:1.5px solid rgba(255,255,255,.3);
+  color:#fff;padding:7px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:500;
+  transition:border-color .2s,background .2s;
+}
+.btn-export:hover{border-color:#fff;background:rgba(255,255,255,.08);}
+.btn-submit{
+  background:var(--orange);color:#fff;border:none;
+  padding:8px 18px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;
+  transition:opacity .2s;
+}
+.btn-submit:hover{opacity:.88;}
+
+/* ── HERO ─────────────────────────────────────────── */
+.hero{
+  background:linear-gradient(135deg,var(--navy) 0%,#0d3580 60%,#1a4a8a 100%);
+  padding:56px 40px 52px;position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;right:-80px;top:-60px;
+  width:420px;height:420px;border-radius:50%;
+  background:radial-gradient(circle,rgba(102,179,178,.18) 0%,transparent 70%);
+}
+.hero::after{
+  content:'';position:absolute;right:60px;bottom:-40px;
+  width:240px;height:240px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,100,185,.12) 0%,transparent 70%);
+}
+.hero-badge{
+  display:inline-block;
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);
+  color:rgba(255,255,255,.85);font-size:11px;font-weight:600;letter-spacing:.08em;
+  text-transform:uppercase;padding:5px 12px;border-radius:4px;margin-bottom:20px;
+}
+.hero h1{
+  font-family:'DM Serif Display',serif;font-size:42px;color:#fff;
+  line-height:1.1;margin-bottom:6px;
+}
+.hero h1 em{font-style:italic;color:var(--teal);}
+.hero-sub{color:rgba(255,255,255,.6);font-size:14px;max-width:540px;line-height:1.6;margin-top:12px;}
+
+/* ── LAYOUT ──────────────────────────────────────── */
+.layout{display:flex;gap:28px;max-width:1160px;margin:0 auto;padding:36px 28px 80px;}
+
+/* ── SIDEBAR ─────────────────────────────────────── */
+.sidebar{width:240px;flex-shrink:0;position:sticky;top:80px;align-self:flex-start;}
+.sidebar-label{
+  font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--gray);margin-bottom:12px;padding-left:4px;
+}
+.nav-item{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:14px 16px;border-radius:var(--radius);cursor:pointer;
+  transition:background .15s;margin-bottom:6px;border:1.5px solid transparent;
+}
+.nav-item:hover{background:#e8eff8;}
+.nav-item.active{background:#fff;border-color:var(--teal);box-shadow:var(--shadow);}
+.nav-num{
+  width:24px;height:24px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;margin-top:1px;
+  background:var(--lgray);color:var(--gray);transition:background .2s,color .2s;
+}
+.nav-item.active .nav-num{background:var(--navy);color:#fff;}
+.nav-item.done .nav-num{background:var(--green);color:#fff;}
+.nav-title{font-size:13px;font-weight:600;color:var(--dark);}
+.nav-desc{font-size:11px;color:var(--gray);margin-top:2px;line-height:1.4;}
+
+.completion-box{
+  background:#fff;border-radius:var(--radius);padding:16px;
+  margin-top:20px;box-shadow:var(--shadow);
+}
+.completion-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.completion-label{font-size:12px;font-weight:600;color:var(--dark);}
+.completion-pct{font-size:12px;font-weight:700;color:var(--teal);}
+.progress-bar{background:var(--lgray);border-radius:999px;height:6px;overflow:hidden;}
+.progress-fill{background:var(--teal);height:100%;border-radius:999px;width:0%;transition:width .4s ease;}
+.completion-count{font-size:11px;color:var(--gray);margin-top:6px;}
+
+/* ── MAIN ────────────────────────────────────────── */
+.main{flex:1;min-width:0;}
+
+/* ── SECTION HEADER ──────────────────────────────── */
+.section-header{
+  background:#fff;border-radius:var(--radius);padding:20px 24px;
+  display:flex;align-items:center;gap:16px;box-shadow:var(--shadow);
+  margin-bottom:16px;border:1.5px solid var(--lgray);
+}
+.section-icon{
+  width:40px;height:40px;border-radius:8px;
+  background:linear-gradient(135deg,var(--navy),#1a4a8a);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  font-size:18px;
+}
+.section-title{font-size:16px;font-weight:700;color:var(--navy);}
+.section-desc{font-size:12px;color:var(--gray);margin-top:2px;}
+.section-qcount{
+  margin-left:auto;background:var(--off);border:1px solid var(--lgray);
+  color:var(--gray);font-size:11px;font-weight:600;padding:4px 10px;border-radius:4px;letter-spacing:.04em;
+  text-transform:uppercase;flex-shrink:0;
+}
+
+/* ── QUESTION CARD ──────────────────────────────── */
+.qcard{
+  background:#fff;border-radius:var(--radius);padding:24px 28px;
+  box-shadow:var(--shadow);margin-bottom:14px;
+  border:1.5px solid var(--lgray);transition:border-color .2s;
+}
+.qcard:focus-within{border-color:var(--teal);}
+.qcard-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:16px;}
+.qnum{
+  width:28px;height:28px;border-radius:6px;background:var(--navy);
+  color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;
+  justify-content:center;flex-shrink:0;margin-top:1px;
+}
+.qtext{font-size:14.5px;font-weight:600;color:var(--dark);line-height:1.4;flex:1;}
+.qtext .req{color:var(--orange);margin-left:2px;}
+.priority-badge{
+  background:#fff7ed;border:1px solid #fed7aa;color:#ea580c;
+  font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  padding:2px 8px;border-radius:4px;flex-shrink:0;
+}
+.qhint{font-size:12px;color:var(--gray);margin-top:-8px;margin-bottom:14px;line-height:1.5;padding-left:40px;}
+
+/* ── INPUT TYPES ─────────────────────────────────── */
+.text-input{
+  width:100%;border:1.5px solid var(--lgray);border-radius:8px;
+  padding:11px 14px;font-size:13.5px;color:var(--dark);font-family:'DM Sans',sans-serif;
+  outline:none;transition:border-color .2s;background:#fff;
+}
+.text-input:focus{border-color:var(--teal);}
+.text-input::placeholder{color:#94a3b8;}
+.input-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+textarea.text-input{resize:vertical;min-height:80px;line-height:1.5;}
+
+.select-wrap{position:relative;}
+.select-wrap select{
+  width:100%;border:1.5px solid var(--lgray);border-radius:8px;
+  padding:11px 40px 11px 14px;font-size:13.5px;color:var(--dark);
+  font-family:'DM Sans',sans-serif;outline:none;cursor:pointer;
+  appearance:none;background:#fff;transition:border-color .2s;
+}
+.select-wrap select:focus{border-color:var(--teal);}
+.select-wrap::after{
+  content:'▾';position:absolute;right:14px;top:50%;transform:translateY(-50%);
+  color:var(--gray);pointer-events:none;font-size:13px;
+}
+
+/* chips (multi-select) */
+.chips{display:flex;flex-wrap:wrap;gap:8px;padding-left:0;}
+.chip{
+  display:inline-flex;align-items:center;gap:5px;
+  border:1.5px solid var(--chip-border);background:#fff;
+  color:var(--dark);font-size:12.5px;font-weight:500;
+  padding:7px 13px;border-radius:6px;cursor:pointer;
+  transition:border-color .18s,background .18s,color .18s;user-select:none;
+}
+.chip:hover{border-color:var(--teal);background:#f0fafa;}
+.chip.selected{background:var(--navy);border-color:var(--navy);color:#fff;}
+.chip.selected::before{content:'✓ ';font-size:11px;}
+
+/* radio cards */
+.radio-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;}
+.radio-card{
+  border:1.5px solid var(--lgray);border-radius:8px;padding:13px 15px;
+  cursor:pointer;transition:border-color .18s,background .18s;
+  display:flex;align-items:flex-start;gap:10px;
+}
+.radio-card:hover{border-color:var(--teal);background:#f0fafa;}
+.radio-card.selected{border-color:var(--navy);background:#eff4ff;}
+.radio-dot{
+  width:16px;height:16px;border-radius:50%;border:2px solid var(--lgray);
+  flex-shrink:0;margin-top:2px;transition:border-color .2s,background .2s;
+  display:flex;align-items:center;justify-content:center;
+}
+.radio-card.selected .radio-dot{border-color:var(--navy);background:var(--navy);}
+.radio-card.selected .radio-dot::after{content:'';width:6px;height:6px;border-radius:50%;background:#fff;}
+.radio-label{font-size:13px;font-weight:600;color:var(--dark);}
+.radio-sub{font-size:11px;color:var(--gray);margin-top:2px;line-height:1.3;}
+
+/* ── SUBMIT FOOTER ──────────────────────────────── */
+.submit-footer{
+  background:var(--navy);border-radius:var(--radius);padding:40px;
+  text-align:center;margin-top:24px;
+}
+.submit-footer h2{
+  font-family:'DM Serif Display',serif;font-size:28px;color:#fff;margin-bottom:10px;
+}
+.submit-footer p{color:rgba(255,255,255,.6);font-size:13.5px;max-width:480px;margin:0 auto 28px;}
+.submit-btns{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;}
+.btn-primary{
+  background:var(--orange);color:#fff;border:none;
+  padding:13px 28px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;
+  display:flex;align-items:center;gap:8px;transition:opacity .2s;
+}
+.btn-primary:hover{opacity:.88;}
+.btn-secondary{
+  background:transparent;border:2px solid rgba(255,255,255,.3);color:#fff;
+  padding:13px 28px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;
+  display:flex;align-items:center;gap:8px;transition:border-color .2s;
+}
+.btn-secondary:hover{border-color:#fff;}
+
+/* ── REQUIRED HINT ──────────────────────────────── */
+.req-note{font-size:12px;color:var(--gray);margin-bottom:20px;}
+.req-note span{color:var(--orange);}
+
+/* ── TOAST ──────────────────────────────────────── */
+.toast{
+  position:fixed;bottom:28px;right:28px;background:var(--green);color:#fff;
+  padding:12px 20px;border-radius:8px;font-size:13px;font-weight:600;
+  transform:translateY(80px);opacity:0;transition:all .3s;z-index:999;
+  display:flex;align-items:center;gap:8px;
+}
+.toast.show{transform:translateY(0);opacity:1;}
+
+/* ── RESPONSIVE ─────────────────────────────────── */
+@media(max-width:760px){
+  .layout{flex-direction:column;padding:20px 16px 60px;}
+  .sidebar{width:100%;position:static;}
+  .hero{padding:36px 20px 36px;}
+  .hero h1{font-size:28px;}
+  .input-row{grid-template-columns:1fr;}
+  .radio-grid{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="topnav">
+  <div class="topnav-brand">
+    <div class="topnav-logo">M</div>
+    <span class="topnav-name">Excelra</span>
+    <span class="topnav-sub">MIDA</span>
+  </div>
+  <div class="topnav-actions">
+    <span class="saved" id="savedLabel">All changes saved</span>
+    <button class="btn-export" onclick="exportToExcel()">⬇ Export to Excel</button>
+    <button class="btn-submit" onclick="submitForm()">Submit Questionnaire</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">Client Onboarding · Confidential</div>
+  <h1>MIDA<br><em>Configuration Questionnaire</em></h1>
+  <p class="hero-sub">Twenty-four focused questions covering everything our delivery team needs to configure and deploy MIDA in your Benchling environment. Estimated completion time: 8–12 minutes.</p>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-label">Questionnaire</div>
+
+    <div class="nav-item active" onclick="scrollToSection('s1')" id="nav1">
+      <div class="nav-num">1</div>
+      <div>
+        <div class="nav-title">Benchling Environment</div>
+        <div class="nav-desc">8 questions · tenant, access, schema</div>
+      </div>
+    </div>
+
+    <div class="nav-item" onclick="scrollToSection('s2')" id="nav2">
+      <div class="nav-num">2</div>
+      <div>
+        <div class="nav-title">MIDA Configuration</div>
+        <div class="nav-desc">8 questions · docs, workflow, outputs</div>
+      </div>
+    </div>
+
+    <div class="nav-item" onclick="scrollToSection('s3')" id="nav3">
+      <div class="nav-num">3</div>
+      <div>
+        <div class="nav-title">Deployment &amp; Security</div>
+        <div class="nav-desc">8 questions · hosting, VPN, compliance</div>
+      </div>
+    </div>
+
+    <div class="completion-box">
+      <div class="completion-header">
+        <span class="completion-label">Completion</span>
+        <span class="completion-pct" id="pctLabel">0%</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="completion-count" id="countLabel">0 of 24 fields answered</div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <p class="req-note"><span>*</span> Indicates a required field</p>
+
+    <!-- ══════════════════════════════════════════════
+         SECTION 1 — Benchling Environment
+    ══════════════════════════════════════════════════ -->
+    <div id="s1">
+      <div class="section-header">
+        <div class="section-icon">🧪</div>
+        <div>
+          <div class="section-title">Section 1 — Benchling Environment</div>
+          <div class="section-desc">Your Benchling tenant, user access, schema setup, and API configuration</div>
+        </div>
+        <div class="section-qcount">8 Questions</div>
+      </div>
+
+      <!-- Q1 -->
+      <div class="qcard">
+        <div class="qcard-header">
+          <div class="qnum">1</div>
+          <div class="qtext">Organisation / Company Name <span class="req">*</span></div>
+        </div>
+        <div class="qhint">Used to label your MIDA configuration and delivery documentation.</div>
+        <div class="input-row">
+          <input class="text-input" type="text" placeholder="e.g. Pfizer R&amp;D" data-qid="1" oninput="onAnswer(this)"/>
+          <input class="text-input" type="text" placeholder="Primary Contact — Full name · email@company.com" data-qid="1b" oninput="onAnswer(this)"/>
+        </div>
+      </div>
+
+      <!-- Q2 -->
+      <div class="qcard">
+        <div class="qcard-header">
+          <div class="qnum">2</div>
+          <div class="qtext">Benchling tenant URL <span class="req">*</span></div>
+        </div>
+        <div class="qhint">Your Benchling organisation subdomain. This is where MIDA will be registered as an app.</div>
+        <input class="text-input" type="text" placeholder="e.g. https://yourorg.benchling.com" data-qid="2" oninput="onAnswer(this)"/>
+      </div>
+
+      <!-- Q3 -->
+      <div class="qcard">
+        <div class="qcard-header">
+          <div class="qnum">3</div>
+          <div class="qtext">Do you have admin access to register a Benchling App? <span class="req">*</span></div>
+        </div>
+        <div class="qhint">MIDA needs to be registered as a Benchling App with canvas and webhook permissions.</div>
+        <div class="radio-grid" id="q3"></div>
+      </div>
+
+      <!-- Q4 -->
+      <div class="qcard">
+        <div class="qcard-header">
+          <div class="qnum">4</div>
+          <div class="qtext">Which result schemas exist on your Benchling tenant that MIDA should audit? <span class="req">*</span></div>
+        </div>
+        <div class="qhint">MIDA auto-detects compatible schemas but a known schema name speeds deployment. List as many as relevant.</div>
+        <textarea class="text-input" placeholder="e.g. Protein Stability Results, Bioreactor Harvest Results, Cytotoxicity Assay…" rows="3" data-qid="4" oninput="onAnswer(this)"></textarea>
+      </div>
+
+      <!-- Q5 -->
+      <div class="qcard">
+        <div class="qcard-header">
+          <div class="qnum">5</div>
+          <div class="qtext">Are the result schemas already in use (i.e. do scientists actively submit rows)? <span class="req">*</span></div>
+        </div>
+        <div class="radio-grid" id="q5"></div>
+      </div>
+
+      <!-- Q6 -->
+      <div class="qcard">
+        <div class="qcard-header">
+          <div class="qnum">6</div>
+          <div class="qtext">How should the MIDA Audit Status field be added to your schema? <span class="req">*</span></div>
+        </div>
+        <div class="qhint">MIDA writes audit verdict and inference comments back to two fields in the results schema. These need to be created or confirmed.</div>
+        <div class="radio-grid" id="q6"></div>
+      </div>
+
+      <!-- Q7 -->
+      <div class="qcard">
+        <div class="qcard-header">
+          <div class="qnum">7</div>
+          <div class="qtext">Who will be the primary scientist / QA user running MIDA audits? <span class="req">*</span></div>
+        </div>
+        <div class="input-row">
+          <input class="text-input" type="text" placeholder="Name(s) and role(s)" data-qid="7" oninput="onAnswer(this)"/>
+          <input class="text-input" type="email" placeholder="Email address(es)" data-qid="7b" oninput="onAnswer(this)"/>
+        </div>
+      </div>
+
+      <!-- Q8 -->
+      <div class="qcard">
+        <div class="qcard-header">
+          <div class="qnum">8</div>
+          <div class="qtext">Does your Benchling tenant require IP allowlisting or VPN to reach the API? <span class="req">*</span></div>
+        </div>
+        <div class="qhint">MIDA's AWS Lambda must be able to call Benchling API endpoints. Network restrictions affect deployment architecture.</div>
+        <div class="chips" id="q8"></div>
+      </div>
+    </div><!-- /s1 -->
+
+
+    <!-- ══════════════════════════════════════════════
+         SECTION 2 — MIDA Configuration
+    ══════════════════════════════════════════════════ -->
+    <div id="s2" style="margin-top:32px;">
+      <div class="section-header">
+        <div class="section-icon">⚙️</div>
+        <div>
+          <div class="section-title">Section 2 — MIDA Configuration</div>
+          <div class="section-desc">Your rule documents, expert notes workflow, output preferences, and audit logic</div>
+        </div>
+        <div class="section-qcount">8 Questions</div>
+      </div>
+
+      <!-- Q9 -->
+      <div class="qcard">
+        <div class="qcard-header">
+          <div class="qnum">9</div>
+          <div class="qtext">What types of rule documents will scientists upload into MIDA? <span class="req">*</span></div>
+        </div>
+        <div class="qhint">Select all that apply. MIDA supports DOCX, PDF, PPTX, plain text, and image files.</div>
+        <div class="chips" id="q9"></div>
+      </div>
+
+      <!-- Q10 -->
+      <div class="qcard">
+        <div class="qcard-header">
+          <div class="qnum">10</div>
+          <div class="qtext">Approximately how many rule documents does a typical audit run involve? <span class="req">*</span></div>
+        </div>
+        <div class="select-wrap">
+          <select data-qid="10" onchange="onAnswer(this)">
+            <option value="">Select…</option>
+            <option>1 document</option>
+            <option>2–3 documents</option>
+            <option>4–6 documents</option>
+            <option>7–10 documents</option>
+            <option>More than 10</option>
+            <option>Varies significantly by assay type</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Q11 -->
+      <div class="qcard">
+        <div class="qcard-header">
+          <div class="qnum">11</div>
+          <div class="qtext">Will scientists use Expert Notes (free-text batch-specific overrides)? <span class="req">*</span></div>
+          <div class="priority-badge">PRIORITY</div>
+        </div>
+        <div class="qhint">Expert notes allow verbal approvals and batch-specific exceptions to be included in the audit. Affects prompt design.</div>
+        <div class="radio-grid" id="q11"></div>
+      </div>
+
+      <!-- Q12 -->
+      <div class="qcard">
+        <div class="qcard-header">
+          <div class="qnum">12</div>
+          <div class="qtext">How are handwritten notes or verbal approvals currently documented? <span class="req">*</span></div>
+        </div>
+        <div class="chips" id="q12"></div>
+      </div>
+
+      <!-- Q13 -->
+      <div class="qcard">
+        <div class="qcard-header">
+          <div class="qnum">13</div>
+          <div class="qtext">What audit output format do you need? <span class="req">*</span></div>
+          <div class="priority-badge">PRIORITY</div>
+        </div>
+        <div class="qhint">MIDA always writes results back to Benchling. Select any additional outputs you need.</div>
+        <div class="chips" id="q13"></div>
+      </div>
+
+      <!-- Q14 -->
+      <div class="qcard">
+        <div class="qcard-header">
+          <div class="qnum">14</div>
+          <div class="qtext">Typical number of result rows per batch audit run <span class="req">*</span></div>
+        </div>
+        <div class="qhint">Drives Lambda memory sizing and Claude token budget. Large batches (&gt;50 rows) need specific optimisation.</div>
+        <div class="select-wrap">
+          <select data-qid="14" onchange="onAnswer(this)">
+            <option value="">Select…</option>
+            <option>1–5 rows</option>
+            <option>6–15 rows</option>
+            <option>16–30 rows</option>
+            <option>31–50 rows</option>
+            <option>More than 50 rows</option>
+            <option>Highly variable</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Q15 -->
+      <div class="qcard">
+        <div class="qcard-header">
+          <div class="qnum">15</div>
+          <div class="qtext">How frequently will MIDA audits be run? <span class="req">*</span></div>
+        </div>
+        <div class="radio-grid" id="q15"></div>
+      </div>
+
+      <!-- Q16 -->
+      <div class="qcard">
+        <div class="qcard-header">
+          <div class="qnum">16</div>
+          <div class="qtext">Do you have existing SOP or MOM templates you can share for configuration? <span class="req">*</span></div>
+        </div>
+        <div class="qhint">Anonymised or synthetic samples are fine. Having a real document helps tune the RAG pipeline and threshold detection prompts.</div>
+        <div class="radio-grid" id="q16"></div>
+        <div style="margin-top:14px;">
+          <textarea class="text-input" placeholder="If yes, briefly describe the document types and key parameter fields they contain (e.g. pH ≥ 7.0, endotoxin ≤ 0.5 EU/mL, purity % thresholds)…" rows="3" data-qid="16b" oninput="onAnswer(this)"></textarea>
+        </div>
+      </div>
+
+    </div><!-- /s2 -->
+
+
+    <!-- ══════════════════════════════════════════════
+         SECTION 3 — Deployment & Security
+    ══════════════════════════════════════════════════ -->
+    <div id="s3" style="margin-top:32px;">
+      <div class="section-header">
+        <div class="section-icon">🔒</div>
+        <div>
+          <div class="section-title">Section 3 — Deployment &amp; Security</div>
+          <div class="section-desc">Where MIDA runs, network restrictions, data residency, and compliance requirements</div>
+        </div>
+        <div class="section-qcount">8 Questions</div>
+      </div>
+
+      <!-- Q17 -->
+      <div class="qcard">
+        <div class="qcard-header">
+          <div class="qnum">17</div>
+          <div class="qtext">Preferred deployment model <span class="req">*</span></div>
+        </div>
+        <div class="radio-grid" id="q17"></div>
+      </div>
+
+      <!-- Q18 -->
+      <div class="qcard">
+        <div class="qcard-header">
+          <div class="qnum">18</div>
+          <div class="qtext">Network &amp; security restrictions <span class="req">*</span></div>
+        </div>
+        <div class="qhint">Affects whether outbound API calls (Amazon Bedrock, Benchling, AWS S3) are permitted from your environment.</div>
+        <div class="chips" id="q18"></div>
+      </div>
+
+      <!-- Q19 -->
+      <div class="qcard">
+        <div class="qcard-header">
+          <div class="qnum">19</div>
+          <div class="qtext">Policy for sending lab data to Amazon Bedrock (Claude AI)? <span class="req">*</span></div>
+          <div class="priority-badge">PRIORITY</div>
+        </div>
+        <div class="qhint">MIDA sends assay result rows and rule document excerpts to Claude via Amazon Bedrock (APAC region). Determines whether anonymisation or on-premise deployment is required.</div>
+        <div class="radio-grid" id="q19"></div>
+      </div>
+
+      <!-- Q20 -->
+      <div class="qcard">
+        <div class="qcard-header">
+          <div class="qnum">20</div>
+          <div class="qtext">AWS region preference for Lambda and S3 deployment <span class="req">*</span></div>
+        </div>
+        <div class="chips" id="q20"></div>
+      </div>
+
+      <!-- Q21 -->
+      <div class="qcard">
+        <div class="qcard-header">
+          <div class="qnum">21</div>
+          <div class="qtext">Does your IT team require a VPN or IP allowlist for external services to call Benchling? <span class="req">*</span></div>
+        </div>
+        <div class="radio-grid" id="q21"></div>
+        <div style="margin-top:14px;">
+          <input class="text-input" type="text" placeholder="If yes — IP range(s) or VPN gateway details to share with IT" data-qid="21b" oninput="onAnswer(this)"/>
+        </div>
+      </div>
+
+      <!-- Q22 -->
+      <div class="qcard">
+        <div class="qcard-header">
+          <div class="qnum">22</div>
+          <div class="qtext">Regulatory or compliance requirements <span class="req">*</span></div>
+        </div>
+        <div class="qhint">Drives audit trail format, e-signature requirements, and validation documentation effort.</div>
+        <div class="chips" id="q22"></div>
+      </div>
+
+      <!-- Q23 -->
+      <div class="qcard">
+        <div class="qcard-header">
+          <div class="qnum">23</div>
+          <div class="qtext">Target go-live timeline <span class="req">*</span></div>
+        </div>
+        <div class="radio-grid" id="q23"></div>
+      </div>
+
+      <!-- Q24 -->
+      <div class="qcard">
+        <div class="qcard-header">
+          <div class="qnum">24</div>
+          <div class="qtext">Anything else relevant for deployment, configuration, or scoping</div>
+        </div>
+        <div class="qhint">Internal IT contacts, prior tooling, special compliance requirements, budget constraints, or anything that helps us plan the engagement accurately.</div>
+        <textarea class="text-input" rows="4" placeholder="e.g. Our IT team needs 2 weeks to whitelist AWS IPs. We use Benchling's EU tenant. Our QA manager needs to approve the audit report format before go-live…" data-qid="24" oninput="onAnswer(this)"></textarea>
+      </div>
+    </div><!-- /s3 -->
+
+    <!-- SUBMIT FOOTER -->
+    <div class="submit-footer">
+      <h2>Submit Questionnaire</h2>
+      <p>Your responses go directly to the Excelra MIDA delivery team. We'll review within one business day and schedule a configuration call.</p>
+      <div class="submit-btns">
+        <button class="btn-primary" onclick="submitForm()">➜ Submit Responses</button>
+        <button class="btn-secondary" onclick="exportToExcel()">⬇ Download as Excel</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATA ─────────────────────────────────────────────────────────────────
+const radioData = {
+  q3: [
+    {label:"Yes — I have admin access", sub:"Can register apps and configure webhooks"},
+    {label:"Need to request IT approval", sub:"IT / procurement process required"},
+    {label:"Not sure", sub:"We'll confirm with our IT team"},
+  ],
+  q5: [
+    {label:"Yes — active schemas", sub:"Scientists submit rows regularly"},
+    {label:"Partially — some schemas active", sub:"Mix of active and unused"},
+    {label:"Not yet — schemas exist but no rows", sub:"Schemas configured, awaiting use"},
+    {label:"No schemas yet", sub:"Need to create from scratch"},
+  ],
+  q6: [
+    {label:"Excelra adds them", sub:"We handle schema modification"},
+    {label:"Our admin adds them", sub:"Client admin modifies the schema"},
+    {label:"Need to discuss with Benchling CSM", sub:"Requires Benchling support"},
+    {label:"Not sure", sub:"We'll advise on options"},
+  ],
+  q11: [
+    {label:"Yes — frequently", sub:"Scientists commonly add batch notes"},
+    {label:"Yes — occasionally", sub:"For exceptional batches only"},
+    {label:"No — not needed", sub:"Rule documents only"},
+    {label:"Want to evaluate", sub:"Show us the feature first"},
+  ],
+  q15: [
+    {label:"Multiple times daily", sub:"High-throughput lab"},
+    {label:"Daily", sub:"End-of-day batch sign-off"},
+    {label:"Weekly", sub:"Batch release cadence"},
+    {label:"Ad-hoc", sub:"As needed per project"},
+  ],
+  q16: [
+    {label:"Yes — can share anonymised", sub:"We have templates ready"},
+    {label:"Yes — after NDA", sub:"Need agreement first"},
+    {label:"No — will provide during setup", sub:"Documents shared on-site only"},
+    {label:"No existing templates", sub:"MIDA needs to work with novel formats"},
+  ],
+  q17: [
+    {label:"Excelra cloud (AWS)", sub:"Excelra-managed, fastest setup"},
+    {label:"Your cloud (AWS/Azure/GCP)", sub:"Deployed into your cloud account"},
+    {label:"On-premise", sub:"Your own data centre"},
+    {label:"Undecided", sub:"Open to discussion"},
+  ],
+  q19: [
+    {label:"No restrictions", sub:"Direct API to Bedrock allowed"},
+    {label:"Anonymised only", sub:"De-identified data only"},
+    {label:"No external AI", sub:"On-premise model required"},
+    {label:"Disable AI features", sub:"Rule-based fallback only"},
+  ],
+  q21: [
+    {label:"No — open API access", sub:"No network restrictions"},
+    {label:"Yes — VPN required", sub:"External services need VPN"},
+    {label:"Yes — IP allowlisting", sub:"Need to share AWS IP ranges"},
+    {label:"Air-gapped environment", sub:"No external API calls permitted"},
+  ],
+  q23: [
+    {label:"ASAP (under 1 month)", sub:"Urgent deployment needed"},
+    {label:"1–3 months", sub:"Standard timeline"},
+    {label:"3–6 months", sub:"Planned rollout"},
+    {label:"6+ months", sub:"Still in evaluation"},
+  ],
+};
+
+const chipData = {
+  q8:  ["No restrictions","VPN required","IP allowlisting required","No outbound to public APIs","Air-gapped / fully isolated","Specific data residency required"],
+  q9:  ["SOP (DOCX / PDF)","MOM / Meeting Minutes","Client quality specifications","Method of Manufacturing (MOM)","Handwritten notes (photo / scan)","Plain text (.txt)","PPTX / Slide decks","Other"],
+  q12: ["Verbal only — not documented","Paper lab notebooks","Shared folder / email","Benchling notebook notes","QMS / formal change control","Not currently documented"],
+  q13: ["Benchling writeback (always included)","Colour-coded Excel full report","Summary Excel (status + comments only)","PDF audit certificate","Email notification on completion","Dashboard / analytics view"],
+  q18: ["No restrictions","VPN required","IP allowlisting required","No outbound to public APIs (LLMs etc.)","Air-gapped / fully isolated","Specific data residency required"],
+  q20: ["ap-south-1 (Mumbai — MIDA default)","ap-southeast-1 (Singapore)","eu-west-1 (Ireland)","eu-central-1 (Frankfurt)","us-east-1 (N. Virginia)","us-west-2 (Oregon)","No preference"],
+  q22: ["GxP (GLP / GMP / GCP)","21 CFR Part 11","EU Annex 11","GDPR","HIPAA","ISO 17025","ISO 15189","Research use only — no compliance"],
+};
+
+// ── RENDER ────────────────────────────────────────────────────────────────
+function renderRadio(id, options) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = options.map((o,i) => `
+    <div class="radio-card" onclick="selectRadio('${id}',${i})" id="${id}_${i}">
+      <div class="radio-dot" id="${id}_dot_${i}"></div>
+      <div>
+        <div class="radio-label">${o.label}</div>
+        ${o.sub ? `<div class="radio-sub">${o.sub}</div>` : ''}
+      </div>
+    </div>`).join('');
+}
+
+function renderChips(id, options) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = options.map((o,i) => `
+    <div class="chip" onclick="toggleChip('${id}',${i})" id="${id}_chip_${i}">${o}</div>`).join('');
+}
+
+Object.keys(radioData).forEach(k => renderRadio(k, radioData[k]));
+Object.keys(chipData).forEach(k => renderChips(k, chipData[k]));
+
+// ── INTERACTIONS ──────────────────────────────────────────────────────────
+const answered = new Set();
+const TOTAL = 24;
+
+function onAnswer(el) {
+  const qid = el.dataset.qid;
+  if (el.value.trim()) answered.add(qid); else answered.delete(qid);
+  updateProgress();
+  markSaved();
+}
+
+function selectRadio(group, idx) {
+  document.querySelectorAll(`[id^="${group}_"]:not([id*="dot"])`).forEach(el => {
+    el.classList.remove('selected');
+  });
+  document.getElementById(`${group}_${idx}`).classList.add('selected');
+  answered.add(group);
+  updateProgress();
+  markSaved();
+}
+
+function toggleChip(group, idx) {
+  const chip = document.getElementById(`${group}_chip_${idx}`);
+  chip.classList.toggle('selected');
+  const anySelected = document.querySelectorAll(`#${group} .chip.selected`).length > 0;
+  if (anySelected) answered.add(group); else answered.delete(group);
+  updateProgress();
+  markSaved();
+}
+
+function updateProgress() {
+  const pct = Math.round((answered.size / TOTAL) * 100);
+  document.getElementById('pctLabel').textContent = pct + '%';
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('countLabel').textContent = `${answered.size} of ${TOTAL} fields answered`;
+}
+
+let saveTimer;
+function markSaved() {
+  document.getElementById('savedLabel').textContent = 'Saving…';
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    document.getElementById('savedLabel').textContent = 'All changes saved';
+  }, 800);
+}
+
+function scrollToSection(id) {
+  document.getElementById(id).scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// Sidebar active state on scroll
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const id = e.target.id;
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      const idx = {s1:1,s2:2,s3:3}[id];
+      if (idx) document.getElementById('nav'+idx).classList.add('active');
+    }
+  });
+}, {threshold:0.1});
+['s1','s2','s3'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) observer.observe(el);
+});
+
+// ── COLLECT RESPONSES ─────────────────────────────────────────────────────
+function collectResponses() {
+  const data = {};
+  document.querySelectorAll('[data-qid]').forEach(el => {
+    if (el.value) data[el.dataset.qid] = el.value;
+  });
+  Object.keys(radioData).forEach(group => {
+    const sel = document.querySelector(`[id^="${group}_"].selected`);
+    if (sel) {
+      const idx = parseInt(sel.id.split('_').pop());
+      data[group] = radioData[group][idx].label;
+    }
+  });
+  Object.keys(chipData).forEach(group => {
+    const chips = [...document.querySelectorAll(`#${group} .chip.selected`)].map(c => c.textContent.replace('✓ ',''));
+    if (chips.length) data[group] = chips.join(', ');
+  });
+  return data;
+}
+
+// ── EXPORT TO EXCEL (CSV) ─────────────────────────────────────────────────
+function exportToExcel() {
+  const data = collectResponses();
+  const questions = [
+    [1,'Organisation / Company Name'],
+    ['1b','Primary Contact (Name & Email)'],
+    [2,'Benchling Tenant URL'],
+    ['q3','Admin access to register Benchling App?'],
+    [4,'Result schemas to audit'],
+    ['q5','Are schemas currently in use?'],
+    ['q6','How should MIDA fields be added to schema?'],
+    [7,'Primary scientist / QA user (name & role)'],
+    ['7b','Primary scientist / QA user (email)'],
+    ['q8','Network restrictions (Benchling API)'],
+    ['q9','Rule document types'],
+    [10,'Documents per audit run'],
+    ['q11','Use Expert Notes?'],
+    ['q12','How handwritten notes are documented'],
+    ['q13','Audit output format'],
+    [14,'Result rows per batch'],
+    ['q15','Audit run frequency'],
+    ['q16','Existing SOP / MOM templates?'],
+    ['16b','Document types and parameter fields'],
+    ['q17','Preferred deployment model'],
+    ['q18','Network & security restrictions'],
+    ['q19','Policy: lab data to Amazon Bedrock'],
+    ['q20','AWS region preference'],
+    ['q21','VPN / IP allowlist for Benchling API?'],
+    ['21b','VPN / IP details'],
+    ['q22','Regulatory / compliance requirements'],
+    ['q23','Target go-live timeline'],
+    [24,'Additional notes'],
+  ];
+  let csv = 'Question,Response\n';
+  questions.forEach(([id, label]) => {
+    const val = (data[id] || '').replace(/"/g,'""');
+    csv += `"${label}","${val}"\n`;
+  });
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'MIDA_Onboarding_Questionnaire.csv';
+  a.click(); URL.revokeObjectURL(url);
+  showToast('✓ Downloaded as CSV');
+}
+
+// ── SUBMIT ────────────────────────────────────────────────────────────────
+function submitForm() {
+  const data = collectResponses();
+  const required = ['1','2','q3','4','q5','q6','7','q8','q9','10','q11','q12','q13','14','q15','q16','q17','q18','q19','q20','q21','q22','q23'];
+  const missing = required.filter(id => !data[id]);
+  if (missing.length > 3) {
+    showToast('⚠ Please answer required fields first', '#e11d48');
+    return;
+  }
+  showToast('✓ Questionnaire submitted — thank you!');
+  setTimeout(() => {
+    document.getElementById('savedLabel').textContent = '✓ Submitted';
+  }, 1000);
+}
+
+function showToast(msg, bg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = bg || 'var(--green)';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
