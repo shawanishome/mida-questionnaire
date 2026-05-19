@@ -1,0 +1,1532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SampleManager LIMS — Visual Explorer</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f0f4f8;
+    --surface: #ffffff;
+    --surface2: #e8edf3;
+    --border: #c9d4e0;
+    --accent: #0077cc;
+    --accent2: #6d28d9;
+    --accent3: #059669;
+    --accent4: #d97706;
+    --accent5: #dc2626;
+    --text: #0f172a;
+    --text-muted: #475569;
+    --text-dim: #334155;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* HEADER */
+  header {
+    padding: 2rem 3rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+  }
+
+  header::before {
+    content: '';
+    position: absolute;
+    top: -80px; left: -80px;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(0,212,255,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; right: 100px;
+    width: 250px; height: 250px;
+    background: radial-gradient(circle, rgba(124,58,237,0.1) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .logo-area h1 {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.4rem;
+    color: var(--accent);
+    letter-spacing: -0.5px;
+  }
+
+  .logo-area p {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-family: 'Space Mono', monospace;
+    margin-top: 2px;
+  }
+
+  .badge {
+    background: linear-gradient(135deg, #dbeafe, #ede9fe);
+    border: 1px solid #93c5fd;
+    border-radius: 6px;
+    padding: 0.4rem 0.8rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent);
+  }
+
+  /* NAV TABS */
+  nav {
+    display: flex;
+    gap: 0;
+    padding: 0 3rem;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+  }
+
+  nav button {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 1rem 1.2rem;
+    color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+    position: relative;
+  }
+
+  nav button:hover { color: var(--text); }
+
+  nav button.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  /* MAIN CONTENT */
+  .content { padding: 2rem 3rem; }
+
+  /* SECTION PANELS */
+  .panel { display: none; animation: fadeIn 0.3s ease; }
+  .panel.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ===== OVERVIEW PANEL ===== */
+  .overview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.4rem;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, border-color 0.2s;
+    cursor: default;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent);
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: 12px 12px 0 0;
+  }
+
+  .stat-card.blue::before { background: var(--accent); }
+  .stat-card.purple::before { background: var(--accent2); }
+  .stat-card.green::before { background: var(--accent3); }
+  .stat-card.amber::before { background: var(--accent4); }
+  .stat-card.red::before { background: var(--accent5); }
+
+  .stat-icon { font-size: 1.8rem; margin-bottom: 0.5rem; }
+  .stat-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .stat-card.blue .stat-num { color: var(--accent); }
+  .stat-card.purple .stat-num { color: var(--accent2); }
+  .stat-card.green .stat-num { color: var(--accent3); }
+  .stat-card.amber .stat-num { color: var(--accent4); }
+  .stat-card.red .stat-num { color: var(--accent5); }
+
+  .stat-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 0.3rem;
+  }
+
+  .section-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    margin: 2rem 0 1rem;
+  }
+
+  /* CHAPTER MAP */
+  .chapter-map {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.4rem;
+  }
+
+  .chapter-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .chapter-card:hover {
+    border-color: var(--accent);
+    background: var(--surface2);
+    transform: translateX(3px);
+  }
+
+  .ch-arrow {
+    margin-left: auto;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    transition: transform 0.2s;
+    padding-top: 2px;
+  }
+
+  .ch-arrow.open { transform: rotate(90deg); color: var(--accent); }
+
+  .chapter-detail {
+    display: none;
+    background: #f0f7ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+    padding: 0.9rem 1.1rem;
+    font-size: 0.76rem;
+    color: var(--text-dim);
+    line-height: 1.65;
+    margin-top: -0.25rem;
+    margin-bottom: 0.25rem;
+    animation: fadeIn 0.2s ease;
+  }
+
+  .chapter-detail.open { display: block; }
+  .chapter-detail b { color: var(--text); }
+
+  .chapter-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--accent);
+    background:#dbeafe;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .chapter-info h4 {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  .chapter-info p {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 0.2rem;
+    line-height: 1.4;
+  }
+
+  /* ===== ARCHITECTURE PANEL ===== */
+  .arch-diagram {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .arch-diagram::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(0,119,204,0.04) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .layer {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.5rem;
+    margin: 0.5rem 0;
+    position: relative;
+    transition: all 0.25s;
+  }
+
+  .layer:hover { border-color: #3b82f6; }
+
+  .layer-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+  }
+
+  .layer-items {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .chip {
+    padding: 0.3rem 0.7rem;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: all 0.2s;
+    cursor: default;
+  }
+
+  .chip:hover { transform: scale(1.05); }
+
+  .chip-blue { background: #dbeafe; color: #1d4ed8; border: 1px solid #93c5fd; }
+  .chip-purple { background: #ede9fe; color: #5b21b6; border: 1px solid #c4b5fd; }
+  .chip-green { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+  .chip-amber { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+  .chip-red { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+  .chip-slate { background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; }
+
+  .connector {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 1.2rem;
+    margin: 0.2rem 0;
+    opacity: 0.5;
+  }
+
+  /* ===== SECURITY PANEL ===== */
+  .security-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+
+  .security-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: border-color 0.2s;
+  }
+
+  .security-card:hover { border-color: #93c5fd; }
+
+  .security-card h3 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .security-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .flow-step {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0.8rem;
+    background: var(--surface2);
+    border-radius: 7px;
+    border-left: 3px solid;
+    font-size: 0.78rem;
+    transition: all 0.2s;
+  }
+
+  .flow-step:hover { transform: translateX(4px); }
+  .flow-step.step-blue { border-color: var(--accent); }
+  .flow-step.step-green { border-color: var(--accent3); }
+  .flow-step.step-amber { border-color: var(--accent4); }
+  .flow-step.step-purple { border-color: #5b21b6; }
+  .flow-step.step-red { border-color: var(--accent5); }
+
+  .step-icon { font-size: 1rem; flex-shrink: 0; }
+  .step-text { color: var(--text-dim); }
+  .step-text strong { color: var(--text); }
+
+  /* Auth methods comparison */
+  .auth-compare {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+
+  .auth-method {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .auth-method:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .auth-method .auth-icon { font-size: 1.5rem; margin-bottom: 0.4rem; }
+  .auth-method .auth-name { font-size: 0.72rem; font-weight: 600; color: var(--text); }
+  .auth-method .auth-desc { font-size: 0.65rem; color: var(--text-muted); margin-top: 0.2rem; }
+
+  /* ===== MODULES PANEL ===== */
+  .modules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1rem;
+  }
+
+  .module-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+
+  .module-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+  }
+
+  .module-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; right: 0;
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    opacity: 0.05;
+    transform: translate(30%, 30%);
+  }
+
+  .module-card.mod-blue::after { background: var(--accent); }
+  .module-card.mod-green::after { background: var(--accent3); }
+  .module-card.mod-amber::after { background: var(--accent4); }
+  .module-card.mod-purple::after { background: var(--accent2); }
+
+  .module-emoji { font-size: 2rem; margin-bottom: 0.75rem; }
+
+  .module-card h3 {
+    font-size: 0.88rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+  }
+
+  .module-card p {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .module-tag {
+    display: inline-block;
+    margin-top: 0.75rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+  }
+
+  /* ===== ADMIN DUTIES PANEL ===== */
+  .duties-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .duty-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    transition: all 0.2s;
+  }
+
+  .duty-item:hover {
+    border-color: #93c5fd;
+    background: var(--surface2);
+  }
+
+  .duty-icon-box {
+    width: 42px; height: 42px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+
+  .duty-text h4 { font-size: 0.82rem; font-weight: 600; margin-bottom: 0.3rem; }
+  .duty-text p { font-size: 0.72rem; color: var(--text-muted); line-height: 1.4; }
+
+  /* ===== PROGRESS BARS ===== */
+  .progress-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .progress-row {
+    margin: 0.7rem 0;
+  }
+
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.4rem;
+  }
+
+  .progress-label { font-size: 0.78rem; color: var(--text-dim); }
+  .progress-pct {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent);
+  }
+
+  .progress-bar {
+    height: 6px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 1s ease;
+  }
+
+  /* ===== TOOLTIP ===== */
+  .tooltip-wrap { position: relative; display: inline-block; }
+  .tooltip-wrap:hover .tooltip-box { opacity: 1; pointer-events: all; transform: translateY(0); }
+  .tooltip-box {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 0.6rem 0.8rem;
+    font-size: 0.72rem;
+    color: #e2e8f0;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.2s;
+    z-index: 100;
+  }
+
+  /* ===== DB PANEL ===== */
+  .db-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .db-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 0.2s;
+  }
+
+  .db-card:hover { border-color: #34d399; }
+
+  .db-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .db-logo {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+  }
+
+  .db-name { font-size: 0.88rem; font-weight: 700; }
+  .db-type { font-size: 0.68rem; color: var(--text-muted); }
+
+  .db-features {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .db-feature {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    padding: 0.25rem 0;
+  }
+
+  .db-feature::before {
+    content: '✓';
+    color: var(--accent3);
+    font-weight: 700;
+  }
+
+  /* INSTALL FLOW */
+  .install-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+    margin-top: 0.5rem;
+  }
+
+  .install-step {
+    display: flex;
+    gap: 1rem;
+    padding: 0.6rem 0;
+    position: relative;
+  }
+
+  .step-dot {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .install-step:not(:last-child) .step-dot::after {
+    content: '';
+    position: absolute;
+    top: 28px; left: 50%;
+    transform: translateX(-50%);
+    width: 2px; height: calc(100% + 8px);
+    background: var(--border);
+  }
+
+  .step-dot-blue { background: #dbeafe; color: #1d4ed8; border: 1px solid #93c5fd; }
+  .step-dot-purple { background: #ede9fe; color: #5b21b6; border: 1px solid #c4b5fd; }
+  .step-dot-green { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+  .step-dot-amber { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+
+  .step-content { padding-top: 0.35rem; }
+  .step-content strong { font-size: 0.8rem; display: block; }
+  .step-content span { font-size: 0.7rem; color: var(--text-muted); }
+
+  /* Search / filter */
+  .search-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    width: 100%;
+    max-width: 360px;
+    outline: none;
+    transition: border-color 0.2s;
+    margin-bottom: 1rem;
+  }
+
+  .search-bar:focus { border-color: var(--accent); }
+  .search-bar::placeholder { color: var(--text-muted); }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    header, nav, .content { padding-left: 1.5rem; padding-right: 1.5rem; }
+    .chapter-map, .security-grid, .duties-list, .db-grid { grid-template-columns: 1fr; }
+    .auth-compare { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 600px) {
+    .overview-grid { grid-template-columns: 1fr 1fr; }
+    .chapter-map { grid-template-columns: 1fr; }
+    .auth-compare { grid-template-columns: 1fr 1fr; }
+    .logo-area h1 { font-size: 1.1rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-area">
+    <h1>⚗️ SampleManager LIMS</h1>
+    <p>v21.2 · Thermo Fisher Scientific · Administration Guide</p>
+  </div>
+  <div class="badge">📄 704 pages · 22 Chapters</div>
+</header>
+
+<nav>
+  <button class="active" onclick="showPanel('overview', this)">🗺 Overview</button>
+  <button onclick="showPanel('architecture', this)">🏗 Architecture</button>
+  <button onclick="showPanel('security', this)">🔐 Security</button>
+  <button onclick="showPanel('modules', this)">🧩 Modules</button>
+  <button onclick="showPanel('admin', this)">🛠 Admin Duties</button>
+  <button onclick="showPanel('database', this)">🗄 Database</button>
+  <button onclick="showPanel('install', this)">⚙️ Install Flow</button>
+</nav>
+
+<div class="content">
+
+  <!-- ====== OVERVIEW PANEL ====== -->
+  <div id="overview" class="panel active">
+    <div class="overview-grid">
+      <div class="stat-card blue">
+        <div class="stat-icon">📄</div>
+        <div class="stat-num">704</div>
+        <div class="stat-label">Total Pages</div>
+      </div>
+      <div class="stat-card purple">
+        <div class="stat-icon">📚</div>
+        <div class="stat-num">22</div>
+        <div class="stat-label">Chapters / Modules</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-icon">🗄</div>
+        <div class="stat-num">3</div>
+        <div class="stat-label">Supported Databases</div>
+      </div>
+      <div class="stat-card amber">
+        <div class="stat-icon">🔐</div>
+        <div class="stat-num">18</div>
+        <div class="stat-label">LDAP Config Items</div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-icon">🖥</div>
+        <div class="stat-num">4</div>
+        <div class="stat-label">Client Types</div>
+      </div>
+      <div class="stat-card blue">
+        <div class="stat-icon">🧩</div>
+        <div class="stat-num">7</div>
+        <div class="stat-label">Add-on Modules</div>
+      </div>
+    </div>
+
+    <div class="section-title">Chapter Map — Click to explore each topic</div>
+    <div class="chapter-map">
+      <div class="chapter-card" onclick="toggleDetail('ch1')">
+        <span class="chapter-num">CH 1</span>
+        <div class="chapter-info">
+          <h4>Overview</h4>
+          <p>Configuration tools, admin roles, system architecture introduction</p>
+        </div>
+        <span class="ch-arrow" id="ch1-arrow">▸</span>
+      </div>
+      <div class="chapter-detail" id="ch1">
+        <b>Key topics:</b> Configuring SampleManager · Custom DB tables &amp; views · Menu configuration · Localization · Entity templates · Configuration items (System / Group / User / Current) · Administrator role overview · Operators vs Users · Roles · Groups · Printers · Background processes · Training courses · Backups &amp; data maintenance
+      </div>
+
+      <div class="chapter-card" onclick="toggleDetail('ch2')">
+        <span class="chapter-num">CH 2</span>
+        <div class="chapter-info">
+          <h4>Install &amp; Setup</h4>
+          <p>Hardware requirements, server install wizard, licensing, instances</p>
+        </div>
+        <span class="ch-arrow" id="ch2-arrow">▸</span>
+      </div>
+      <div class="chapter-detail" id="ch2">
+        <b>Key topics:</b> Hardware &amp; software requirements · Oracle / PostgreSQL / SQL Server support · Install wizard (setup.exe from .iso) · Thermo Licensing Service install · Creating a Server Instance wizard · Clone &amp; Peer installs · SampleManager folder structure (Root, Data, EXE, Resource, Logfile, Attachment, Report…) · Software licensing types · Spellchecking · Add-on modules overview
+      </div>
+
+      <div class="chapter-card" onclick="showPanel('architecture', document.querySelectorAll('nav button')[1]); toggleDetail('ch3')">
+        <span class="chapter-num">CH 3</span>
+        <div class="chapter-info">
+          <h4>Client Install &amp; Setup</h4>
+          <p>Desktop, tablet, web, portal, mobile app client types</p>
+        </div>
+        <span class="ch-arrow" id="ch3-arrow">▸</span>
+      </div>
+      <div class="chapter-detail" id="ch3">
+        <b>Key topics:</b> Desktop (MSI), Tablet, Web, and Portal client types · Windows Installer Package · Connecting client to server · Resource folder sync (Local vs Remote mode) · Smart Client component install · Mobile App WCF services · IIS installation for Web &amp; Portal · SampleManager Web &amp; Portal configuration · Synchronize resources · Help documentation IIS install
+      </div>
+
+      <div class="chapter-card" onclick="toggleDetail('ch4')">
+        <span class="chapter-num">CH 4</span>
+        <div class="chapter-info">
+          <h4>Operating Environment</h4>
+          <p>Registry, services, daemons, network, event viewer</p>
+        </div>
+        <span class="ch-arrow" id="ch4-arrow">▸</span>
+      </div>
+      <div class="chapter-detail" id="ch4">
+        <b>Key topics:</b> Windows Registry editing · Default instance &amp; use_cluster keys · SampleManager Windows Services · Lock Daemon · Service properties (General, Log On, Recovery, Dependencies tabs) · Client Pre-start · Server Warm Start · SampleManager folder tree · Windows Event Viewer · Network considerations &amp; TCP/IP troubleshooting tools
+      </div>
+
+      <div class="chapter-card" onclick="showPanel('admin', document.querySelectorAll('nav button')[4])">
+        <span class="chapter-num">CH 5</span>
+        <div class="chapter-info">
+          <h4>Administrator Tools</h4>
+          <p>Service monitor, server manager, admin utilities</p>
+        </div>
+        <span class="ch-arrow" id="ch5-arrow">▸</span>
+      </div>
+      <div class="chapter-detail" id="ch5">
+        <b>Key topics:</b> Service Monitor utility · Server Manager · Full admin toolset — see the <em>Admin Duties</em> tab for a complete breakdown of administrator responsibilities
+      </div>
+
+      <div class="chapter-card" onclick="showPanel('security', document.querySelectorAll('nav button')[2])">
+        <span class="chapter-num">CH 6</span>
+        <div class="chapter-info">
+          <h4>Security &amp; User Setup</h4>
+          <p>Operators, roles, groups, LDAP, SSO, passwords, MFA</p>
+        </div>
+        <span class="ch-arrow" id="ch6-arrow">▸</span>
+      </div>
+      <div class="chapter-detail" id="ch6">
+        <b>Key topics:</b> Full security model — see the <em>Security</em> tab for a detailed breakdown of authentication methods, login flow, roles vs groups, and e-signature compliance
+      </div>
+
+      <div class="chapter-card" onclick="toggleDetail('ch78')">
+        <span class="chapter-num">CH 7–8</span>
+        <div class="chapter-info">
+          <h4>Configuration &amp; Database Config</h4>
+          <p>Config items at System, Group, User levels; schema setup</p>
+        </div>
+        <span class="ch-arrow" id="ch78-arrow">▸</span>
+      </div>
+      <div class="chapter-detail" id="ch78">
+        <b>CH 7 — Configuration Items:</b> System-level, Group-level, and User-level config items · Default printer · Date/time format · Browse field settings · Menu and toolbar defaults<br><br>
+        <b>CH 8 — Database Configuration:</b> structure.txt file for custom table definitions · Adding fields and tables to the schema · Database identifier in registry · Tablespace management · schema layout tool
+      </div>
+
+      <div class="chapter-card" onclick="toggleDetail('ch910')">
+        <span class="chapter-num">CH 9–10</span>
+        <div class="chapter-info">
+          <h4>Property Sheets &amp; Menus</h4>
+          <p>Custom UI forms, configurable menus per user/group</p>
+        </div>
+        <span class="ch-arrow" id="ch910-arrow">▸</span>
+      </div>
+      <div class="chapter-detail" id="ch910">
+        <b>CH 9 — Property Sheets:</b> Create and test static data user interfaces · Populate custom fields from within SampleManager · Link property sheets to custom database tables<br><br>
+        <b>CH 10 — Menus:</b> Master menu (all possible items) · Client menu (user/group subset) · Adding custom menu items · Assigning menu items to Roles · Per-user and per-group menu configuration
+      </div>
+
+      <div class="chapter-card" onclick="toggleDetail('ch1113')">
+        <span class="chapter-num">CH 11–13</span>
+        <div class="chapter-info">
+          <h4>More DB Config, Template Fields &amp; Indexes</h4>
+          <p>Custom tables, template fields, views and index creation</p>
+        </div>
+        <span class="ch-arrow" id="ch1113-arrow">▸</span>
+      </div>
+      <div class="chapter-detail" id="ch1113">
+        <b>CH 11 — More Database Configuration:</b> Advanced schema customisation · Interfaces with other software packages · Tailoring SampleManager to specific environments<br><br>
+        <b>CH 12 — Template Fields:</b> Table Defaults to define which fields appear on Entity Templates · Adding custom fields via Template Fields tab · Custom fields must exist in structure.txt first<br><br>
+        <b>CH 13 — Indexes &amp; Views:</b> Creating custom indexes for performance · Custom views on existing and new tables · Optimising data retrieval for large databases
+      </div>
+
+      <div class="chapter-card" onclick="toggleDetail('ch14')">
+        <span class="chapter-num">CH 14</span>
+        <div class="chapter-info">
+          <h4>Localization</h4>
+          <p>Language files, message IDs, industry-specific terminology</p>
+        </div>
+        <span class="ch-arrow" id="ch14-arrow">▸</span>
+      </div>
+      <div class="chapter-detail" id="ch14">
+        <b>Key topics:</b> Language and message files · Unique message IDs referenced in code · Modifying displayed text for industry-specific terms · Translating SampleManager to another language · Localization folder in the SampleManager directory tree · Customising field labels and UI text without code changes
+      </div>
+
+      <div class="chapter-card" onclick="toggleDetail('ch15')">
+        <span class="chapter-num">CH 15</span>
+        <div class="chapter-info">
+          <h4>Workflows</h4>
+          <p>Automated process flows, task routing, and lab workflow design</p>
+        </div>
+        <span class="ch-arrow" id="ch15-arrow">▸</span>
+      </div>
+      <div class="chapter-detail" id="ch15">
+        <b>Key topics:</b> Defining automated workflows for lab processes · Routing tasks between users and groups · Workflow states and transitions · Linking workflows to samples, jobs, and analyses · Automating repetitive lab operations · Integration with background services for unattended execution
+      </div>
+
+      <div class="chapter-card" onclick="toggleDetail('ch1617')">
+        <span class="chapter-num">CH 16–17</span>
+        <div class="chapter-info">
+          <h4>Auditing &amp; e-Signatures</h4>
+          <p>21 CFR Part 11 compliance, audit trails, electronic sign-off</p>
+        </div>
+        <span class="ch-arrow" id="ch1617-arrow">▸</span>
+      </div>
+      <div class="chapter-detail" id="ch1617">
+        <b>CH 16 — Auditing:</b> Audit trail configuration · Logging every data change with user, timestamp, and before/after values · 21 CFR Part 11 compliance · Audit report generation<br><br>
+        <b>CH 17 — Electronic Signatures:</b> Re-authentication before critical actions · LDAP-based e-signature setup · Configure Electronic Signatures screens · SSO_CLIENT_SECRET encryption · Multi-Factor Authentication via IdP · Meaning of signature and reason recording
+      </div>
+
+      <div class="chapter-card" onclick="toggleDetail('ch1822')">
+        <span class="chapter-num">CH 18–22</span>
+        <div class="chapter-info">
+          <h4>Printing, BG Ops, Data Maintenance, Backup &amp; Upgrade</h4>
+          <p>Reports, watchdog service, archive tables, version upgrade</p>
+        </div>
+        <span class="ch-arrow" id="ch1822-arrow">▸</span>
+      </div>
+      <div class="chapter-detail" id="ch1822">
+        <b>CH 18 — Printing &amp; Reporting:</b> Defining printers · Report generation · Printer mapped from OS to SampleManager<br><br>
+        <b>CH 19 — Background Operations:</b> Watchdog Windows service · Running VGL programs &amp; .NET tasks non-interactively · Manual vs auto-start at boot<br><br>
+        <b>CH 20 — Data Maintenance:</b> Active → Committed → Archive table flow · Moving data to maintain query performance · Cleaning orphaned files (VGL dumps, log files, deleted-entry text files)<br><br>
+        <b>CH 21 — Backup:</b> Backup strategy for database + folder tree · Admin responsibility to design and test backups · Thermo Fisher does not provide strategies — customer-specific<br><br>
+        <b>CH 22 — Upgrade:</b> New release ~every 16 months · Test on copy before production · Release Notes contain version-specific steps · Plan, test, and validate custom functionality post-upgrade
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== ARCHITECTURE PANEL ====== -->
+  <div id="architecture" class="panel">
+    <div class="section-title">System Architecture — Layer by Layer</div>
+    <div class="arch-diagram">
+
+      <div class="layer" style="border-color: #93c5fd; background: #eff6ff;">
+        <div class="layer-label" style="color:var(--accent)">🖥 Client Layer — 4 Client Types</div>
+        <div class="layer-items">
+          <span class="chip chip-blue tooltip-wrap">Desktop Client<span class="tooltip-box">Windows MSI install; full fat client with all LIMS functionality</span></span>
+          <span class="chip chip-blue tooltip-wrap">Web Client (IIS)<span class="tooltip-box">Hosted via IIS on Windows 2019; Chrome / Edge recommended</span></span>
+          <span class="chip chip-blue tooltip-wrap">Portal Client<span class="tooltip-box">MongoDB + .NET 3.1 based; separate standalone server recommended</span></span>
+          <span class="chip chip-blue tooltip-wrap">Mobile App<span class="tooltip-box">WCF services; connects to SampleManager server over network</span></span>
+          <span class="chip chip-slate tooltip-wrap">Tablet Client<span class="tooltip-box">Touch-optimized; subset of desktop functionality</span></span>
+        </div>
+      </div>
+
+      <div class="connector">↕</div>
+
+      <div class="layer" style="border-color: #c4b5fd; background: #f5f3ff;">
+        <div class="layer-label" style="color:#5b21b6">⚙️ Application Server Layer</div>
+        <div class="layer-items">
+          <span class="chip chip-purple tooltip-wrap">SampleManager Server<span class="tooltip-box">Core VGL execution engine; runs as Windows service; default port 56100</span></span>
+          <span class="chip chip-purple tooltip-wrap">Background Service<span class="tooltip-box">Watchdog timer; runs VGL programs &amp; .NET tasks in non-interactive mode</span></span>
+          <span class="chip chip-purple tooltip-wrap">Lock Daemon<span class="tooltip-box">Manages record locking across concurrent user sessions</span></span>
+          <span class="chip chip-purple tooltip-wrap">REST Endpoint (:56105)<span class="tooltip-box">Used by Portal; http://localhost:56105 default</span></span>
+          <span class="chip chip-slate tooltip-wrap">Thermo Licensing Service<span class="tooltip-box">License server can be collocated or on separate machine</span></span>
+        </div>
+      </div>
+
+      <div class="connector">↕</div>
+
+      <div class="layer" style="border-color: #fcd34d; background: #fffbeb;">
+        <div class="layer-label" style="color:var(--accent4)">🔐 Authentication Layer</div>
+        <div class="layer-items">
+          <span class="chip chip-amber tooltip-wrap">Local Password<span class="tooltip-box">Username/password stored in SM PASSWORD table</span></span>
+          <span class="chip chip-amber tooltip-wrap">WinNT Domain<span class="tooltip-box">LOGIN_ALLOW_DOMAIN + LOGIN_WINNT; proxy login available</span></span>
+          <span class="chip chip-amber tooltip-wrap">LDAP / Active Directory<span class="tooltip-box">18 config items; secure LDAPS option; AD group filtering</span></span>
+          <span class="chip chip-amber tooltip-wrap">SSO (OAuth 2.0 / OIDC)<span class="tooltip-box">Okta, Entra ID, Cyberark etc; MFA provided by IdP</span></span>
+          <span class="chip chip-amber tooltip-wrap">Single Sign-On<span class="tooltip-box">Desktop, Web, Portal &amp; Mobile all support SSO; requires HTTPS on web</span></span>
+        </div>
+      </div>
+
+      <div class="connector">↕</div>
+
+      <div class="layer" style="border-color: #6ee7b7; background: #ecfdf5;">
+        <div class="layer-label" style="color:var(--accent3)">🗄 Database Layer — Choose One</div>
+        <div class="layer-items">
+          <span class="chip chip-green tooltip-wrap">Oracle<span class="tooltip-box">Tablespace &amp; user created during install; SYS password needed for new accounts</span></span>
+          <span class="chip chip-green tooltip-wrap">PostgreSQL<span class="tooltip-box">Server &amp; database selected during instance creation wizard</span></span>
+          <span class="chip chip-green tooltip-wrap">SQL Server<span class="tooltip-box">Connection string configured; supports Windows integrated auth</span></span>
+        </div>
+      </div>
+
+      <div class="connector">↕</div>
+
+      <div class="layer" style="border-color: #cbd5e1; background: #f8fafc;">
+        <div class="layer-label" style="color:var(--text-muted)">📁 File System — SampleManager Folders</div>
+        <div class="layer-items">
+          <span class="chip chip-slate">Root Folder</span>
+          <span class="chip chip-slate">Data Files</span>
+          <span class="chip chip-slate">EXE / Programs</span>
+          <span class="chip chip-slate">Resource</span>
+          <span class="chip chip-slate">Logfiles</span>
+          <span class="chip chip-slate">Attachments</span>
+          <span class="chip chip-slate">Reports</span>
+          <span class="chip chip-slate">Localization</span>
+          <span class="chip chip-slate">Code</span>
+          <span class="chip chip-slate">Message</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top:2rem">Configuration Scope — Settings Cascade</div>
+    <div style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-top:0.5rem">
+      <div style="flex:1; min-width:160px; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:1rem; text-align:center;">
+        <div style="font-size:1.4rem; margin-bottom:0.4rem">🌐</div>
+        <div style="font-size:0.78rem; font-weight:600; color:var(--accent)">System</div>
+        <div style="font-size:0.68rem; color:var(--text-muted); margin-top:0.3rem">Global defaults for all users</div>
+      </div>
+      <div style="font-size:1.2rem; display:flex; align-items:center; color:var(--text-muted)">→</div>
+      <div style="flex:1; min-width:160px; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:1rem; text-align:center;">
+        <div style="font-size:1.4rem; margin-bottom:0.4rem">👥</div>
+        <div style="font-size:0.78rem; font-weight:600; color:var(--accent2)">Group</div>
+        <div style="font-size:0.68rem; color:var(--text-muted); margin-top:0.3rem">Override system for a lab group</div>
+      </div>
+      <div style="font-size:1.2rem; display:flex; align-items:center; color:var(--text-muted)">→</div>
+      <div style="flex:1; min-width:160px; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:1rem; text-align:center;">
+        <div style="font-size:1.4rem; margin-bottom:0.4rem">👤</div>
+        <div style="font-size:0.78rem; font-weight:600; color:var(--accent3)">User</div>
+        <div style="font-size:0.68rem; color:var(--text-muted); margin-top:0.3rem">Override group for individual</div>
+      </div>
+      <div style="font-size:1.2rem; display:flex; align-items:center; color:var(--text-muted)">→</div>
+      <div style="flex:1; min-width:160px; background:var(--surface); border:1px solid #93c5fd; border-radius:10px; padding:1rem; text-align:center;">
+        <div style="font-size:1.4rem; margin-bottom:0.4rem">⚡</div>
+        <div style="font-size:0.78rem; font-weight:600; color:var(--accent4)">Current</div>
+        <div style="font-size:0.68rem; color:var(--text-muted); margin-top:0.3rem">Active session configuration</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== SECURITY PANEL ====== -->
+  <div id="security" class="panel">
+    <div class="section-title">Authentication Methods</div>
+    <div class="auth-compare">
+      <div class="auth-method">
+        <div class="auth-icon">🔑</div>
+        <div class="auth-name">Local Password</div>
+        <div class="auth-desc">SM PASSWORD table; fallback always available</div>
+      </div>
+      <div class="auth-method">
+        <div class="auth-icon">🏢</div>
+        <div class="auth-name">Windows Domain</div>
+        <div class="auth-desc">WinNT or AD; proxy login for auto-sign-in</div>
+      </div>
+      <div class="auth-method">
+        <div class="auth-icon">📂</div>
+        <div class="auth-name">LDAP / Active Dir</div>
+        <div class="auth-desc">18 config items; group-based access control</div>
+      </div>
+      <div class="auth-method">
+        <div class="auth-icon">🛡️</div>
+        <div class="auth-name">SSO (OAuth 2.0)</div>
+        <div class="auth-desc">Okta, Entra ID, Cyberark; MFA via IdP</div>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top:2rem">Security Model</div>
+    <div class="security-grid">
+      <div class="security-card">
+        <h3>👥 Users &amp; Operators</h3>
+        <div class="security-flow">
+          <div class="flow-step step-blue">
+            <span class="step-icon">👤</span>
+            <div class="step-text"><strong>Operator Record</strong> — person in PERSONNEL table (no login yet)</div>
+          </div>
+          <div class="flow-step step-green">
+            <span class="step-icon">🔑</span>
+            <div class="step-text"><strong>Assign Password</strong> — converts operator to a login user</div>
+          </div>
+          <div class="flow-step step-purple">
+            <span class="step-icon">🎭</span>
+            <div class="step-text"><strong>Assign Role(s)</strong> — defines which menu items are accessible</div>
+          </div>
+          <div class="flow-step step-amber">
+            <span class="step-icon">🏷</span>
+            <div class="step-text"><strong>Assign Group(s)</strong> — defines which data records are visible</div>
+          </div>
+          <div class="flow-step step-red">
+            <span class="step-icon">⚙️</span>
+            <div class="step-text"><strong>Config Items</strong> — printer, date format, menu layout etc.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="security-card">
+        <h3>🎭 Roles vs Groups</h3>
+        <div style="margin-bottom:1rem; padding:1rem; background:var(--surface2); border-radius:8px; font-size:0.75rem; color:var(--text-dim); line-height:1.6;">
+          <strong style="color:var(--accent)">Roles</strong> control <em>what functionality</em> a user can access — menu items, actions, features.<br><br>
+          <strong style="color:#5b21b6">Groups</strong> control <em>what data</em> a user can see — e.g. Microbiology group only sees micro samples.
+        </div>
+        <div class="security-flow">
+          <div class="flow-step step-blue">
+            <span class="step-icon">📋</span>
+            <div class="step-text"><strong>Master Menu</strong> — all possible menu items in the system</div>
+          </div>
+          <div class="flow-step step-purple">
+            <span class="step-icon">✂️</span>
+            <div class="step-text"><strong>Client Menu</strong> — subset assigned to user via Role</div>
+          </div>
+          <div class="flow-step step-green">
+            <span class="step-icon">🔍</span>
+            <div class="step-text"><strong>Data Filter</strong> — Group assignment restricts record visibility</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="security-card">
+        <h3>✍️ Electronic Signatures (21 CFR Part 11)</h3>
+        <div class="security-flow">
+          <div class="flow-step step-amber">
+            <span class="step-icon">📋</span>
+            <div class="step-text"><strong>Audit Trails</strong> — every action logged with user, time, change</div>
+          </div>
+          <div class="flow-step step-blue">
+            <span class="step-icon">✍️</span>
+            <div class="step-text"><strong>e-Signatures</strong> — re-authenticate before critical actions</div>
+          </div>
+          <div class="flow-step step-green">
+            <span class="step-icon">🎓</span>
+            <div class="step-text"><strong>Training Courses</strong> — gate tasks behind qualifications</div>
+          </div>
+          <div class="flow-step step-purple">
+            <span class="step-icon">🔒</span>
+            <div class="step-text"><strong>SSO + MFA</strong> — multi-factor via IdP for secure access</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="security-card">
+        <h3>🔄 Login Flow</h3>
+        <div class="security-flow">
+          <div class="flow-step step-blue">
+            <span class="step-icon">1️⃣</span>
+            <div class="step-text"><strong>Username/password entered</strong> or SSO redirect triggered</div>
+          </div>
+          <div class="flow-step step-green">
+            <span class="step-icon">2️⃣</span>
+            <div class="step-text"><strong>Credentials validated</strong> against LDAP / AD / local table</div>
+          </div>
+          <div class="flow-step step-amber">
+            <span class="step-icon">3️⃣</span>
+            <div class="step-text"><strong>Config loaded</strong> — printer, date fmt, menu, toolbars, roles</div>
+          </div>
+          <div class="flow-step step-purple">
+            <span class="step-icon">4️⃣</span>
+            <div class="step-text"><strong>Resource sync</strong> — client folder compared to server</div>
+          </div>
+          <div class="flow-step step-red">
+            <span class="step-icon">5️⃣</span>
+            <div class="step-text"><strong>Menu loaded</strong> — filtered by role; toolbars arranged</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== MODULES PANEL ====== -->
+  <div id="modules" class="panel">
+    <div class="section-title">Add-on Modules — Extend the Core System</div>
+    <div class="modules-grid">
+      <div class="module-card mod-blue">
+        <div class="module-emoji">🔗</div>
+        <h3>SM-IDI</h3>
+        <p>Instrument Data Interface — connects analytical instruments to SampleManager for automated result transfer and data integrity.</p>
+        <span class="module-tag chip-blue">Instrument Integration</span>
+      </div>
+      <div class="module-card mod-green">
+        <div class="module-emoji">🌐</div>
+        <h3>SM NetWeaver</h3>
+        <p>SAP integration module — bridges SampleManager with SAP ERP environments for cross-system data sharing in large enterprises.</p>
+        <span class="module-tag chip-green">ERP Integration</span>
+      </div>
+      <div class="module-card mod-amber">
+        <div class="module-emoji">🏭</div>
+        <h3>SM-PIMS</h3>
+        <p>Process Information Management System — manages process analytical data, connecting lab results to manufacturing workflows.</p>
+        <span class="module-tag chip-amber">Manufacturing</span>
+      </div>
+      <div class="module-card mod-purple">
+        <div class="module-emoji">📊</div>
+        <h3>SampleManager SQC</h3>
+        <p>Statistical Quality Control — trend analysis, control charts, and statistical evaluation of analytical results over time.</p>
+        <span class="module-tag chip-purple">Quality Control</span>
+      </div>
+      <div class="module-card mod-blue">
+        <div class="module-emoji">🧪</div>
+        <h3>SM Stability</h3>
+        <p>Stability study management — tracks sample degradation over defined time points for pharmaceutical and biotech labs.</p>
+        <span class="module-tag chip-blue">Pharma / Biotech</span>
+      </div>
+      <div class="module-card mod-green">
+        <div class="module-emoji">💧</div>
+        <h3>SM WMM</h3>
+        <p>Water Management Module — specialized LIMS functionality for drinking water, wastewater, and environmental monitoring labs.</p>
+        <span class="module-tag chip-green">Environmental</span>
+      </div>
+      <div class="module-card mod-amber">
+        <div class="module-emoji">🌈</div>
+        <h3>Rainbow Sky</h3>
+        <p>Advanced colour measurement and formulation module — used in paint, coatings, and materials science laboratories.</p>
+        <span class="module-tag chip-amber">Materials Science</span>
+      </div>
+    </div>
+
+    <div class="progress-section">
+      <div class="section-title" style="margin:0 0 1rem">Coverage by Domain</div>
+      <div class="progress-row">
+        <div class="progress-header">
+          <span class="progress-label">Pharmaceutical &amp; Biotech</span>
+          <span class="progress-pct">95%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:95%; background:var(--accent)"></div></div>
+      </div>
+      <div class="progress-row">
+        <div class="progress-header">
+          <span class="progress-label">Environmental Monitoring</span>
+          <span class="progress-pct">85%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:85%; background:var(--accent3)"></div></div>
+      </div>
+      <div class="progress-row">
+        <div class="progress-header">
+          <span class="progress-label">Manufacturing QC</span>
+          <span class="progress-pct">90%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:90%; background:var(--accent4)"></div></div>
+      </div>
+      <div class="progress-row">
+        <div class="progress-header">
+          <span class="progress-label">Materials &amp; Coatings</span>
+          <span class="progress-pct">70%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:70%; background:var(--accent2)"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== ADMIN DUTIES PANEL ====== -->
+  <div id="admin" class="panel">
+    <div class="section-title">SampleManager Administrator Responsibilities</div>
+    <div class="duties-list">
+      <div class="duty-item">
+        <div class="duty-icon-box" style="background:#dbeafe">👥</div>
+        <div class="duty-text">
+          <h4>User &amp; Operator Management</h4>
+          <p>Create operator records in PERSONNEL table; assign passwords to grant system access; configure roles and groups per person.</p>
+        </div>
+      </div>
+      <div class="duty-item">
+        <div class="duty-icon-box" style="background:#ede9fe">🎭</div>
+        <div class="duty-text">
+          <h4>Role &amp; Group Configuration</h4>
+          <p>Define roles mapping menu items to access levels; assign lab units (e.g. Microbiology, Chemistry) as groups to control data visibility.</p>
+        </div>
+      </div>
+      <div class="duty-item">
+        <div class="duty-icon-box" style="background:#d1fae5">🖨️</div>
+        <div class="duty-text">
+          <h4>Printer Definitions</h4>
+          <p>Map OS-defined printers into SampleManager so reports can be generated and directed to the correct physical or network printers.</p>
+        </div>
+      </div>
+      <div class="duty-item">
+        <div class="duty-icon-box" style="background:#fef3c7">⚙️</div>
+        <div class="duty-text">
+          <h4>Background Services</h4>
+          <p>Configure and manage the watchdog Windows service that runs VGL programs and .NET tasks in non-interactive (background) mode.</p>
+        </div>
+      </div>
+      <div class="duty-item">
+        <div class="duty-icon-box" style="background:#fee2e2">💾</div>
+        <div class="duty-text">
+          <h4>Backups &amp; Data Maintenance</h4>
+          <p>Design and verify backup strategies for the database and folder tree. Move data between active, committed, and archive tables to maintain performance.</p>
+        </div>
+      </div>
+      <div class="duty-item">
+        <div class="duty-icon-box" style="background:#dbeafe">🗂️</div>
+        <div class="duty-text">
+          <h4>File &amp; Folder Cleanup</h4>
+          <p>Remove VGL dump files, stale log files, orphaned text files. Keeps disk usage lean and OS performance high.</p>
+        </div>
+      </div>
+      <div class="duty-item">
+        <div class="duty-icon-box" style="background:#ede9fe">🎓</div>
+        <div class="duty-text">
+          <h4>Training Course Tracking</h4>
+          <p>Link training records to operators; gate critical tasks (result entry, instrument prep) so only qualified personnel can perform them.</p>
+        </div>
+      </div>
+      <div class="duty-item">
+        <div class="duty-icon-box" style="background:#d1fae5">🔄</div>
+        <div class="duty-text">
+          <h4>Version Upgrades</h4>
+          <p>Plan and execute upgrades every ~16 months. Always test on a copy first; validate standard and custom functionality before production rollout.</p>
+        </div>
+      </div>
+      <div class="duty-item">
+        <div class="duty-icon-box" style="background:#fef3c7">🌐</div>
+        <div class="duty-text">
+          <h4>Localization &amp; Config Items</h4>
+          <p>Modify language/message files for industry-specific terms; set configuration items at System, Group, or User level to tailor the operating environment.</p>
+        </div>
+      </div>
+      <div class="duty-item">
+        <div class="duty-icon-box" style="background:#fee2e2">📋</div>
+        <div class="duty-text">
+          <h4>Audit &amp; Compliance</h4>
+          <p>Oversee audit trail configuration and electronic signature setup for 21 CFR Part 11 and other regulatory compliance requirements.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== DATABASE PANEL ====== -->
+  <div id="database" class="panel">
+    <div class="section-title">Supported Database Engines</div>
+    <div class="db-grid">
+      <div class="db-card">
+        <div class="db-header">
+          <div class="db-logo" style="background:#fee2e2; color:var(--accent5)">🔴</div>
+          <div>
+            <div class="db-name">Oracle</div>
+            <div class="db-type">Enterprise relational DB</div>
+          </div>
+        </div>
+        <div class="db-features">
+          <div class="db-feature">Tablespace &amp; user auto-created during install</div>
+          <div class="db-feature">SYS password needed to create new accounts</div>
+          <div class="db-feature">Existing tablespace can be reused</div>
+          <div class="db-feature">Connection string written to Windows registry</div>
+          <div class="db-feature">Most common for large regulated labs</div>
+        </div>
+      </div>
+      <div class="db-card">
+        <div class="db-header">
+          <div class="db-logo" style="background:#dbeafe; color:var(--accent)">🐘</div>
+          <div>
+            <div class="db-name">PostgreSQL</div>
+            <div class="db-type">Open-source relational DB</div>
+          </div>
+        </div>
+        <div class="db-features">
+          <div class="db-feature">Server and database selected in wizard</div>
+          <div class="db-feature">No SYS-equivalent needed for setup</div>
+          <div class="db-feature">Lightweight deployment option</div>
+          <div class="db-feature">Connection string stored in registry</div>
+          <div class="db-feature">Growing support in newer SM versions</div>
+        </div>
+      </div>
+      <div class="db-card">
+        <div class="db-header">
+          <div class="db-logo" style="background:#d1fae5; color:var(--accent3)">🪟</div>
+          <div>
+            <div class="db-name">SQL Server</div>
+            <div class="db-type">Microsoft relational DB</div>
+          </div>
+        </div>
+        <div class="db-features">
+          <div class="db-feature">SQL Server instance selected in wizard</div>
+          <div class="db-feature">Supports Windows integrated authentication</div>
+          <div class="db-feature">Database auto-created if SYS-equivalent given</div>
+          <div class="db-feature">Strong choice for Windows-centric environments</div>
+          <div class="db-feature">Connection string configurable post-install</div>
+        </div>
+      </div>
+      <div class="db-card">
+        <div class="db-header">
+          <div class="db-logo" style="background:#fef3c7; color:var(--accent4)">📊</div>
+          <div>
+            <div class="db-name">Data Tables</div>
+            <div class="db-type">Active / Committed / Archive</div>
+          </div>
+        </div>
+        <div class="db-features">
+          <div class="db-feature">Active: current in-progress jobs &amp; samples</div>
+          <div class="db-feature">Committed: completed data kept online</div>
+          <div class="db-feature">Archive: offloaded to external storage</div>
+          <div class="db-feature">structure.txt defines custom table schema</div>
+          <div class="db-feature">Indexes &amp; views configurable by admin</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top:2rem">SYSTEM User &amp; Default State</div>
+    <div style="background:var(--surface); border:1px solid #fcd34d; border-radius:10px; padding:1.2rem; font-size:0.8rem; color:var(--text-dim); line-height:1.7;">
+      ⚠️ On fresh install, a <strong style="color:var(--accent4)">SYSTEM</strong> user is created with a <strong style="color:var(--accent5)">blank password</strong>. Thermo Fisher recommends setting this password immediately post-installation. The SYSTEM user can login once without a license. Any user-specific changes (default printer, group settings) should be applied before going live.
+    </div>
+  </div>
+
+  <!-- ====== INSTALL FLOW PANEL ====== -->
+  <div id="install" class="panel">
+    <div class="section-title">Installation Sequence — Server &amp; Client</div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:2rem">
+      <div>
+        <div style="font-size:0.8rem; font-weight:600; color:var(--accent); margin-bottom:1rem; font-family:'Space Mono',monospace">SERVER INSTALL</div>
+        <div class="install-flow">
+          <div class="install-step">
+            <div class="step-dot step-dot-blue">1</div>
+            <div class="step-content">
+              <strong>Verify database engine</strong>
+              <span>Oracle, PostgreSQL, or SQL Server must be ready</span>
+            </div>
+          </div>
+          <div class="install-step">
+            <div class="step-dot step-dot-purple">2</div>
+            <div class="step-content">
+              <strong>Mount .iso &amp; run setup.exe</strong>
+              <span>Manual or autorun install wizard</span>
+            </div>
+          </div>
+          <div class="install-step">
+            <div class="step-dot step-dot-green">3</div>
+            <div class="step-content">
+              <strong>Install Thermo Licensing Service</strong>
+              <span>License server can be collocated or separate</span>
+            </div>
+          </div>
+          <div class="install-step">
+            <div class="step-dot step-dot-amber">4</div>
+            <div class="step-content">
+              <strong>Create Server Instance Wizard</strong>
+              <span>Name, DB selection, connection string</span>
+            </div>
+          </div>
+          <div class="install-step">
+            <div class="step-dot step-dot-blue">5</div>
+            <div class="step-content">
+              <strong>Build database schema</strong>
+              <span>Creates SM tables, loads default data</span>
+            </div>
+          </div>
+          <div class="install-step">
+            <div class="step-dot step-dot-purple">6</div>
+            <div class="step-content">
+              <strong>Compile VGL programs</strong>
+              <span>All VGL source compiled on first run</span>
+            </div>
+          </div>
+          <div class="install-step">
+            <div class="step-dot step-dot-green">7</div>
+            <div class="step-content">
+              <strong>Configure network &amp; services</strong>
+              <span>Add Windows services, port 56100 default</span>
+            </div>
+          </div>
+          <div class="install-step" style="padding-bottom:0">
+            <div class="step-dot step-dot-amber">8</div>
+            <div class="step-content">
+              <strong>Site-specific setup</strong>
+              <span>Load .NET forms, add licensing, set SYSTEM password</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:0.8rem; font-weight:600; color:#5b21b6; margin-bottom:1rem; font-family:'Space Mono',monospace">CLIENT INSTALL OPTIONS</div>
+        <div style="display:flex; flex-direction:column; gap:0.75rem;">
+          <div style="background:var(--surface); border:1px solid #93c5fd; border-radius:10px; padding:1rem;">
+            <div style="font-size:0.8rem; font-weight:600; color:var(--accent); margin-bottom:0.3rem">🖥 Desktop (MSI)</div>
+            <div style="font-size:0.72rem; color:var(--text-muted)">Windows Installer Package; full-featured client; connects to server by IP/hostname + port</div>
+          </div>
+          <div style="background:var(--surface); border:1px solid #c4b5fd; border-radius:10px; padding:1rem;">
+            <div style="font-size:0.8rem; font-weight:600; color:#5b21b6; margin-bottom:0.3rem">🌐 Web Client (IIS)</div>
+            <div style="font-size:0.72rem; color:var(--text-muted)">Installed on Windows 2019 IIS; Chrome/Edge; run WebClient_Setup.exe; synchronize resources post-setup</div>
+          </div>
+          <div style="background:var(--surface); border:1px solid #6ee7b7; border-radius:10px; padding:1rem;">
+            <div style="font-size:0.8rem; font-weight:600; color:var(--accent3); margin-bottom:0.3rem">🏛 Portal Client (IIS + MongoDB)</div>
+            <div style="font-size:0.72rem; color:var(--text-muted)">Requires .NET hosting + MongoDB 4.2.5; appsettings.json config; default port 9011; HTTPS required for SSO</div>
+          </div>
+          <div style="background:var(--surface); border:1px solid #fcd34d; border-radius:10px; padding:1rem;">
+            <div style="font-size:0.8rem; font-weight:600; color:var(--accent4); margin-bottom:0.3rem">📱 Mobile App (WCF)</div>
+            <div style="font-size:0.72rem; color:var(--text-muted)">WCF Services must be enabled; app installed on mobile device; connects to server over network</div>
+          </div>
+        </div>
+
+        <div style="margin-top:1.5rem;">
+          <div style="font-size:0.8rem; font-weight:600; color:var(--accent3); margin-bottom:0.75rem; font-family:'Space Mono',monospace">STARTUP SEQUENCE</div>
+          <div style="font-size:0.75rem; color:var(--text-muted); background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; line-height:2;">
+            Login prompt → Validate credentials → <span style="color:var(--accent)">Load config</span> → Sync resource folder → <span style="color:#5b21b6">Load menu &amp; toolbars</span> → Execute background checks → <span style="color:var(--accent3)">Ready ✓</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function showPanel(id, btn) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    if (btn) btn.classList.add('active');
+  }
+
+  function toggleDetail(id) {
+    const detail = document.getElementById(id);
+    const arrow = document.getElementById(id + '-arrow');
+    const isOpen = detail.classList.contains('open');
+    detail.classList.toggle('open', !isOpen);
+    if (arrow) arrow.classList.toggle('open', !isOpen);
+  }
+</script>
+
+</body>
+</html>
